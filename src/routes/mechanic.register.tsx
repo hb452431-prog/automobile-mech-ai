@@ -128,7 +128,9 @@ function MechanicRegister() {
   );
 }
 
-function Field({ label, v, on, required, type, placeholder }: any) {
+function Field({ label, v, on, required, type, placeholder }: {
+  label: string; v: string; on: (v: string) => void; required?: boolean; type?: string; placeholder?: string;
+}) {
   return (
     <div>
       <Label>{label}{required && " *"}</Label>

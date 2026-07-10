@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RoleSelectRouteImport } from './routes/role-select'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MechanicRegisterRouteImport } from './routes/mechanic.register'
+import { Route as MechanicDashboardRouteImport } from './routes/mechanic.dashboard'
+import { Route as CustomerRegisterRouteImport } from './routes/customer.register'
 
 const RoleSelectRoute = RoleSelectRouteImport.update({
   id: '/role-select',
@@ -28,35 +31,81 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MechanicRegisterRoute = MechanicRegisterRouteImport.update({
+  id: '/mechanic/register',
+  path: '/mechanic/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MechanicDashboardRoute = MechanicDashboardRouteImport.update({
+  id: '/mechanic/dashboard',
+  path: '/mechanic/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerRegisterRoute = CustomerRegisterRouteImport.update({
+  id: '/customer/register',
+  path: '/customer/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/role-select': typeof RoleSelectRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/role-select': typeof RoleSelectRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/role-select': typeof RoleSelectRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/role-select'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/role-select'
-  id: '__root__' | '/' | '/auth' | '/role-select'
+  to:
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   RoleSelectRoute: typeof RoleSelectRoute
+  CustomerRegisterRoute: typeof CustomerRegisterRoute
+  MechanicDashboardRoute: typeof MechanicDashboardRoute
+  MechanicRegisterRoute: typeof MechanicRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +131,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mechanic/register': {
+      id: '/mechanic/register'
+      path: '/mechanic/register'
+      fullPath: '/mechanic/register'
+      preLoaderRoute: typeof MechanicRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mechanic/dashboard': {
+      id: '/mechanic/dashboard'
+      path: '/mechanic/dashboard'
+      fullPath: '/mechanic/dashboard'
+      preLoaderRoute: typeof MechanicDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/register': {
+      id: '/customer/register'
+      path: '/customer/register'
+      fullPath: '/customer/register'
+      preLoaderRoute: typeof CustomerRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   RoleSelectRoute: RoleSelectRoute,
+  CustomerRegisterRoute: CustomerRegisterRoute,
+  MechanicDashboardRoute: MechanicDashboardRoute,
+  MechanicRegisterRoute: MechanicRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

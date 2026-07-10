@@ -25,7 +25,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) return navigate({ to: "/auth" });
+    if (!user) { navigate({ to: "/auth" }); return; }
     supabase.from("mechanics").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
       if (!data) navigate({ to: "/mechanic/register" });
       else setMech(data);
