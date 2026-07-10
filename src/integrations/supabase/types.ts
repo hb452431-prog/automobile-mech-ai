@@ -14,16 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_help_requests: {
+        Row: {
+          ai_response: Json | null
+          created_at: string
+          id: string
+          image_url: string | null
+          problem_description: string | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_response?: Json | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          problem_description?: string | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_response?: Json | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          problem_description?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string
+          updated_at: string
+          user_id: string
+          vehicle_brand: string | null
+          vehicle_model: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          phone: string
+          updated_at?: string
+          user_id: string
+          vehicle_brand?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_brand?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
+      mechanics: {
+        Row: {
+          address: string
+          alternate_phone: string | null
+          availability_status: string
+          city: string
+          created_at: string
+          experience_years: number | null
+          full_name: string
+          garage_name: string
+          id: string
+          is_seed: boolean
+          latitude: number | null
+          longitude: number | null
+          phone: string
+          pincode: string
+          profile_image: string | null
+          services: string[]
+          state: string
+          updated_at: string
+          user_id: string | null
+          working_hours: string | null
+        }
+        Insert: {
+          address: string
+          alternate_phone?: string | null
+          availability_status?: string
+          city: string
+          created_at?: string
+          experience_years?: number | null
+          full_name: string
+          garage_name: string
+          id?: string
+          is_seed?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          phone: string
+          pincode: string
+          profile_image?: string | null
+          services?: string[]
+          state: string
+          updated_at?: string
+          user_id?: string | null
+          working_hours?: string | null
+        }
+        Update: {
+          address?: string
+          alternate_phone?: string | null
+          availability_status?: string
+          city?: string
+          created_at?: string
+          experience_years?: number | null
+          full_name?: string
+          garage_name?: string
+          id?: string
+          is_seed?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string
+          pincode?: string
+          profile_image?: string | null
+          services?: string[]
+          state?: string
+          updated_at?: string
+          user_id?: string | null
+          working_hours?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          results_count: number | null
+          searched_location: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          results_count?: number | null
+          searched_location?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          results_count?: number | null
+          searched_location?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "mechanic" | "customer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +371,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["mechanic", "customer"],
+    },
   },
 } as const
