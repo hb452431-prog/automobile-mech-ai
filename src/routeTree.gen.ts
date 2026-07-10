@@ -9,38 +9,134 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RoleSelectRouteImport } from './routes/role-select'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MechanicRegisterRouteImport } from './routes/mechanic.register'
+import { Route as MechanicDashboardRouteImport } from './routes/mechanic.dashboard'
+import { Route as CustomerRegisterRouteImport } from './routes/customer.register'
+import { Route as CustomerHomeRouteImport } from './routes/customer.home'
 
+const RoleSelectRoute = RoleSelectRouteImport.update({
+  id: '/role-select',
+  path: '/role-select',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MechanicRegisterRoute = MechanicRegisterRouteImport.update({
+  id: '/mechanic/register',
+  path: '/mechanic/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MechanicDashboardRoute = MechanicDashboardRouteImport.update({
+  id: '/mechanic/dashboard',
+  path: '/mechanic/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerRegisterRoute = CustomerRegisterRouteImport.update({
+  id: '/customer/register',
+  path: '/customer/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerHomeRoute = CustomerHomeRouteImport.update({
+  id: '/customer/home',
+  path: '/customer/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/role-select': typeof RoleSelectRoute
+  '/customer/home': typeof CustomerHomeRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/role-select': typeof RoleSelectRoute
+  '/customer/home': typeof CustomerHomeRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/role-select': typeof RoleSelectRoute
+  '/customer/home': typeof CustomerHomeRoute
+  '/customer/register': typeof CustomerRegisterRoute
+  '/mechanic/dashboard': typeof MechanicDashboardRoute
+  '/mechanic/register': typeof MechanicRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/home'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/home'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/role-select'
+    | '/customer/home'
+    | '/customer/register'
+    | '/mechanic/dashboard'
+    | '/mechanic/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  RoleSelectRoute: typeof RoleSelectRoute
+  CustomerHomeRoute: typeof CustomerHomeRoute
+  CustomerRegisterRoute: typeof CustomerRegisterRoute
+  MechanicDashboardRoute: typeof MechanicDashboardRoute
+  MechanicRegisterRoute: typeof MechanicRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/role-select': {
+      id: '/role-select'
+      path: '/role-select'
+      fullPath: '/role-select'
+      preLoaderRoute: typeof RoleSelectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +144,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mechanic/register': {
+      id: '/mechanic/register'
+      path: '/mechanic/register'
+      fullPath: '/mechanic/register'
+      preLoaderRoute: typeof MechanicRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mechanic/dashboard': {
+      id: '/mechanic/dashboard'
+      path: '/mechanic/dashboard'
+      fullPath: '/mechanic/dashboard'
+      preLoaderRoute: typeof MechanicDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/register': {
+      id: '/customer/register'
+      path: '/customer/register'
+      fullPath: '/customer/register'
+      preLoaderRoute: typeof CustomerRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/home': {
+      id: '/customer/home'
+      path: '/customer/home'
+      fullPath: '/customer/home'
+      preLoaderRoute: typeof CustomerHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  RoleSelectRoute: RoleSelectRoute,
+  CustomerHomeRoute: CustomerHomeRoute,
+  CustomerRegisterRoute: CustomerRegisterRoute,
+  MechanicDashboardRoute: MechanicDashboardRoute,
+  MechanicRegisterRoute: MechanicRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
