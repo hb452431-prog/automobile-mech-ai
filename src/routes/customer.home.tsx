@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, MapPin, Phone, Navigation, Search, Sparkles, Upload, AlertTriangle } from "lucide-react";
+import { Loader2, MapPin, Phone, Navigation, Search, Sparkles, Upload, AlertTriangle, Languages } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { distanceKm } from "@/lib/geocode";
 import { diagnose, type DiagnosisResult } from "@/lib/ai-diagnose.functions";
+import { LANGUAGES } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
 import type { Tables } from "@/integrations/supabase/types";
 
