@@ -65,6 +65,10 @@ export const diagnose = createServerFn({ method: "POST" })
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM },
+          {
+            role: "system",
+            content: `Respond in ${data.language || "English"}. Translate every string field (problem, explanation, causes, steps, solution, precautions, tools, recommendation) into ${data.language || "English"}. Keep the "severity" field as one of the exact English tokens: "low", "medium", or "high". Keep JSON keys in English.`,
+          },
           { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
