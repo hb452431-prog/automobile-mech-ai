@@ -198,7 +198,20 @@ function AiSection({ onGoToMechanic, userId }: { onGoToMechanic: () => void; use
   const [imageMime, setImageMime] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
+  const [language, setLanguage] = useState<string>("English");
   const run = useServerFn(diagnose);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase.from("profiles").select("preferred_language").eq("id", userId).maybeSingle().then(({ data }) => {
+      if (data?.preferred_language) setLanguage(data.preferred_language);
+    });
+  }, [userId]);
+
+  const onLanguageChange = (v: string) => {
+    setLanguage(v);
+    if (userId) supabase.from("profiles").update({ preferred_language: v }).eq("id", userId).then(() => {});
+  };
 
   const onFile = (f: File) => {
     const reader = new FileReader();
@@ -214,7 +227,7 @@ function AiSection({ onGoToMechanic, userId }: { onGoToMechanic: () => void; use
     if (!text && !imageB64) return toast.error("Describe the problem or upload a photo");
     setBusy(true); setResult(null);
     try {
-      const r = await run({ data: { description: text || undefined, imageBase64: imageB64 || undefined, imageMime: imageMime || undefined } });
+      const r = await run({ data: { description: text || undefined, imageBase64: imageB64 || undefined, imageMime: imageMime || undefined, language } });
       setResult(r);
       if (userId) supabase.from("ai_help_requests").insert({
         user_id: userId, problem_description: text || null, ai_response: r as unknown as any, severity: r.severity,
@@ -225,12 +238,23 @@ function AiSection({ onGoToMechanic, userId }: { onGoToMechanic: () => void; use
   };
 
   return (
-    <section className="mt-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:p-8 card-elev">
-      <div className="flex items-center gap-2">
-        <Sparkles className="size-5 text-primary" />
-        <h2 className="text-2xl font-bold">AI Vehicle Help</h2>
+    <section id="ai" className="mt-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:p-8 card-elev">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-5 text-primary" />
+          <h2 className="text-2xl font-bold">AI Vehicle Help</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <Languages className="size-4 text-muted-foreground" />
+          <Select value={language} onValueChange={onLanguageChange}>
+            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              {LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">Upload a photo or describe your problem — get an instant mechanic-style diagnosis.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Upload a photo or describe your problem — get an instant mechanic-style diagnosis in your language.</p>
 
       <Tabs defaultValue="text" className="mt-4">
         <TabsList><TabsTrigger value="text">Describe</TabsTrigger><TabsTrigger value="image">Upload photo</TabsTrigger></TabsList>
@@ -256,6 +280,7 @@ function AiSection({ onGoToMechanic, userId }: { onGoToMechanic: () => void; use
     </section>
   );
 }
+
 
 function DiagnosisView({ r, onGoToMechanic }: { r: DiagnosisResult; onGoToMechanic: () => void }) {
   const sevColor = r.severity === "high" ? "destructive" : r.severity === "medium" ? "default" : "secondary";
