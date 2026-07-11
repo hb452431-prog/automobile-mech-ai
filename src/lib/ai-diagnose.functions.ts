@@ -5,6 +5,7 @@ const InputSchema = z.object({
   description: z.string().max(2000).optional(),
   imageBase64: z.string().max(6_000_000).optional(),
   imageMime: z.string().max(50).optional(),
+  language: z.string().max(40).optional(),
 });
 
 export type DiagnosisResult = {
