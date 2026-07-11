@@ -37,22 +37,27 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-2">
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="sm" className="gap-2">
-                  <UserIcon className="size-4" />
-                  <span className="hidden sm:inline">{user.email ?? user.phone ?? "Account"}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/role-select" })}>Switch role</DropdownMenuItem>
-                <DropdownMenuItem onClick={logout} className="text-destructive">
-                  <LogOut className="mr-2 size-4" /> Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <Button asChild variant="secondary" size="sm" className="gap-2">
+                <Link to="/profile"><UserIcon className="size-4" /><span className="hidden sm:inline">Profile</span></Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <span className="hidden max-w-[160px] truncate sm:inline">{user.email ?? user.phone ?? "Account"}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate({ to: "/profile" })}>View profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/role-select" })}>Switch role</DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                    <LogOut className="mr-2 size-4" /> Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <Button asChild size="sm" className="grad-primary text-primary-foreground">
               <Link to="/auth">Sign in</Link>
