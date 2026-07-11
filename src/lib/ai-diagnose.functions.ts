@@ -5,6 +5,7 @@ const InputSchema = z.object({
   description: z.string().max(2000).optional(),
   imageBase64: z.string().max(6_000_000).optional(),
   imageMime: z.string().max(50).optional(),
+  language: z.string().max(40).optional(),
 });
 
 export type DiagnosisResult = {
@@ -64,6 +65,10 @@ export const diagnose = createServerFn({ method: "POST" })
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM },
+          {
+            role: "system",
+            content: `Respond in ${data.language || "English"}. Translate every string field (problem, explanation, causes, steps, solution, precautions, tools, recommendation) into ${data.language || "English"}. Keep the "severity" field as one of the exact English tokens: "low", "medium", or "high". Keep JSON keys in English.`,
+          },
           { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
