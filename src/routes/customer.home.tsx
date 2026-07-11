@@ -81,6 +81,9 @@ function CustomerHome() {
             </Button>
           </div>
           {!posSet && <p className="mt-2 text-xs text-muted-foreground">Using Bengaluru as reference — allow location for accurate distance.</p>}
+          <Button asChild size="lg" className="mt-4 h-14 w-full grad-primary text-lg font-bold text-primary-foreground shadow-lg">
+            <a href="/customer/nearby"><Navigation className="mr-2 size-5" />Nearby Garage (within 1 km)</a>
+          </Button>
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
