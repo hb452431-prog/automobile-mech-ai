@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, LogOut, User as UserIcon, Wrench } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Header } from "@/components/Header";
+import { AvatarUploader } from "@/components/AvatarUploader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -68,16 +69,26 @@ function ProfilePage() {
     <div className="min-h-screen">
       <Header />
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <div className="flex items-center gap-4">
-          <div className="grid size-16 place-items-center rounded-full grad-primary text-primary-foreground">
-            {role === "mechanic" ? <Wrench className="size-7" /> : <UserIcon className="size-7" />}
-          </div>
-          <div>
+        <div className="mb-4">
+          <Button variant="ghost" size="sm" className="gap-2 -ml-2" onClick={() => navigate({ to: role === "mechanic" ? "/mechanic/dashboard" : "/customer/home" })}>
+            <ArrowLeft className="size-4" /> Back to Home
+          </Button>
+        </div>
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          {user && (
+            <AvatarUploader
+              userId={user.id}
+              avatarPath={profile?.avatar_url ?? null}
+              onChange={(path) => setProfile((p) => (p ? { ...p, avatar_url: path } : p))}
+              fallbackIcon={role === "mechanic" ? "wrench" : "user"}
+            />
+          )}
+          <div className="flex-1">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{role} profile</p>
             <h1 className="text-2xl font-bold">{profile?.full_name || customer?.full_name || mech?.full_name || "Account"}</h1>
             <p className="text-sm text-muted-foreground">{user?.email ?? user?.phone}</p>
           </div>
-          <Button variant="secondary" className="ml-auto" onClick={logout}><LogOut className="mr-2 size-4" />Logout</Button>
+          <Button variant="secondary" className="sm:ml-auto" onClick={logout}><LogOut className="mr-2 size-4" />Logout</Button>
         </div>
 
         <Card className="card-elev mt-6 border-border/60 bg-card p-6">
