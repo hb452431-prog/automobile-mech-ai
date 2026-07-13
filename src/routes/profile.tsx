@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, LogOut, User as UserIcon, Wrench } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Header } from "@/components/Header";
+import { AvatarUploader } from "@/components/AvatarUploader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
