@@ -70,8 +70,8 @@ function ProfilePage() {
       <Header />
       <main className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-4">
-          <Button asChild variant="ghost" size="sm" className="gap-2 -ml-2">
-            <Link to="/customer/home"><ArrowLeft className="size-4" /> Back to Home</Link>
+          <Button variant="ghost" size="sm" className="gap-2 -ml-2" onClick={() => navigate({ to: role === "mechanic" ? "/mechanic/dashboard" : "/customer/home" })}>
+            <ArrowLeft className="size-4" /> Back to Home
           </Button>
         </div>
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
