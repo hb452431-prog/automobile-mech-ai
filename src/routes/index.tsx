@@ -15,14 +15,21 @@ function Landing() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="mx-auto max-w-7xl px-4 pb-16 pt-14 sm:pt-20 lg:grid lg:grid-cols-2 lg:gap-10">
+          {/* Decorative redline speed accent */}
+          <div className="pointer-events-none absolute -left-20 top-24 h-40 w-[140%] -rotate-6 bg-gradient-to-r from-primary/5 via-primary/20 to-transparent blur-3xl" />
+          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-primary/10 blur-[100px]" />
+
+          <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-14 sm:pt-20 lg:grid lg:grid-cols-2 lg:gap-10">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary shadow-sm shadow-primary/10">
                 <Sparkles className="size-3.5" /> AI Vehicle Diagnosis + Nearby Mechanics
               </div>
               <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Your car broke down?<br />
-                <span className="text-primary">We&apos;ve got a mechanic</span>
+                <span className="relative inline-block text-primary">
+                  We&apos;ve got a mechanic
+                  <span className="absolute -bottom-1 left-0 h-1.5 w-full rounded-full bg-primary/20" />
+                </span>
                 <br />and an AI beside you.
               </h1>
               <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
