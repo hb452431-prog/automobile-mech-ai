@@ -163,7 +163,7 @@ function GoogleMap({ center, mechs, selectedId, onSelect }: { center: { lat: num
         center, zoom: 12, disableDefaultUI: false,
         styles: [{ elementType: "geometry", stylers: [{ color: "#1a2332" }] }, { elementType: "labels.text.fill", stylers: [{ color: "#d1d5db" }] }, { elementType: "labels.text.stroke", stylers: [{ color: "#0f172a" }] }, { featureType: "road", elementType: "geometry", stylers: [{ color: "#334155" }] }, { featureType: "water", elementType: "geometry", stylers: [{ color: "#0b1220" }] }],
       });
-      new window.google.maps.Marker({ position: center, map: mapRef.current, title: "You", icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#f97316", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
+      new window.google.maps.Marker({ position: center, map: mapRef.current, title: "You", icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#dc2626", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
     } else {
       mapRef.current.setCenter(center);
     }
