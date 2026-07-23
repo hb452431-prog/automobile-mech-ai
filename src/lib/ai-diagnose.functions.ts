@@ -43,6 +43,7 @@ fuel leakage, major electrical failure, heavy smoke, overheating with coolant le
 Respond with ONLY valid JSON, no markdown fences.`;
 
 export const diagnose = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }) => {
     const key = process.env.LOVABLE_API_KEY;
