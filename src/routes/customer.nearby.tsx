@@ -92,7 +92,7 @@ function NearbyPage() {
     if (!meMarkerRef.current) {
       meMarkerRef.current = new window.google.maps.Marker({
         position: pos, map: mapRef.current, title: "You",
-        icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#dc2626", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
+        icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: "#3b82f6", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 3 },
         zIndex: 999,
       });
     } else {
@@ -118,7 +118,7 @@ function NearbyPage() {
         position: { lat: m.latitude!, lng: m.longitude! }, map: mapRef.current, title: m.garage_name,
         icon: {
           path: "M12 2C7 2 3 6 3 11c0 7 9 13 9 13s9-6 9-13c0-5-4-9-9-9z",
-          fillColor: "#dc2626", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2, scale: 1.6,
+          fillColor: "#f97316", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2, scale: 1.6,
           anchor: new window.google.maps.Point(12, 24),
         },
       });
@@ -145,7 +145,7 @@ function NearbyPage() {
       );
       const renderer = new window.google.maps.DirectionsRenderer({
         map: mapRef.current, directions: res, suppressMarkers: true,
-        polylineOptions: { strokeColor: "#dc2626", strokeWeight: 5, strokeOpacity: 0.9 },
+        polylineOptions: { strokeColor: "#f97316", strokeWeight: 5, strokeOpacity: 0.9 },
       });
       dirRendererRef.current = renderer;
       const leg = res.routes[0].legs[0];
