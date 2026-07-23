@@ -3,8 +3,10 @@
 // We instead call our own thin server fn.
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const geocodeServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({ address: z.string().min(3).max(300) }).parse(raw))
   .handler(async ({ data }) => {
     const lovKey = process.env.LOVABLE_API_KEY;

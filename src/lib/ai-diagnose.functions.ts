@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   description: z.string().max(2000).optional(),
@@ -42,6 +43,7 @@ fuel leakage, major electrical failure, heavy smoke, overheating with coolant le
 Respond with ONLY valid JSON, no markdown fences.`;
 
 export const diagnose = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }) => {
     const key = process.env.LOVABLE_API_KEY;
