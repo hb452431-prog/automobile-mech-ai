@@ -70,6 +70,21 @@ function AuthPage() {
     else toast.success("Account created — check email if confirmation required");
   };
 
+  const demoLogin = async () => {
+    setBusy(true);
+    const creds = { email: "demo@automobile-mech-ai.app", password: "demo-user-1234" };
+    let { error } = await supabase.auth.signInWithPassword(creds);
+    if (error) {
+      const { error: se } = await supabase.auth.signUp(creds);
+      if (se) { setBusy(false); return toast.error(se.message); }
+      ({ error } = await supabase.auth.signInWithPassword(creds));
+    }
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Signed in as demo user");
+  };
+
+
   return (
     <div className="grid min-h-screen place-items-center px-4 py-10">
       <div className="w-full max-w-md">
@@ -86,9 +101,13 @@ function AuthPage() {
             <svg className="mr-2 size-5" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1H12v3.8h5.35c-.23 1.5-1.7 4.4-5.35 4.4-3.22 0-5.85-2.67-5.85-5.95S8.78 7.4 12 7.4c1.83 0 3.06.78 3.77 1.45L18.7 6.1C16.85 4.4 14.6 3.35 12 3.35 6.98 3.35 2.9 7.43 2.9 12.45S6.98 21.55 12 21.55c6.94 0 9.4-4.87 9.4-8.5 0-.57-.05-1.01-.05-1.95z"/></svg>
             Continue with Google
           </Button>
+          <Button onClick={demoLogin} disabled={busy} variant="secondary" className="mt-3 w-full" size="lg">
+            Demo login (instant)
+          </Button>
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px flex-1 bg-border" /> OR <div className="h-px flex-1 bg-border" />
           </div>
+
 
           <Tabs defaultValue="phone">
             <TabsList className="grid w-full grid-cols-2">
