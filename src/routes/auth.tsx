@@ -70,6 +70,21 @@ function AuthPage() {
     else toast.success("Account created — check email if confirmation required");
   };
 
+  const demoLogin = async () => {
+    setBusy(true);
+    const creds = { email: "demo@automobile-mech-ai.app", password: "demo-user-1234" };
+    let { error } = await supabase.auth.signInWithPassword(creds);
+    if (error) {
+      const { error: se } = await supabase.auth.signUp(creds);
+      if (se) { setBusy(false); return toast.error(se.message); }
+      ({ error } = await supabase.auth.signInWithPassword(creds));
+    }
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Signed in as demo user");
+  };
+
+
   return (
     <div className="grid min-h-screen place-items-center px-4 py-10">
       <div className="w-full max-w-md">
