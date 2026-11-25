@@ -104,15 +104,41 @@ export const getDeviceInfo = (): DeviceInfo => {
   };
 };
 
-export const DEFAULT_FALLBACK_LOCATION: UserLocation = {
-  lat: 37.7749,
-  lng: -122.4194,
-  accuracy: 15,
-  name: "San Francisco, CA (Default Hub)",
-  address: "Market St & 7th St, San Francisco, CA",
-  isManual: true,
-  source: "manual",
+export const getInitialFallbackLocation = (): UserLocation => {
+  let isIndianTz = true; // Default to India unless explicitly other timezone
+  if (typeof Intl !== "undefined") {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      if (tz.includes("America") || tz.includes("New_York") || tz.includes("Los_Angeles")) {
+        isIndianTz = false;
+      }
+    } catch {}
+  }
+
+  if (isIndianTz) {
+    return {
+      lat: 12.9716,
+      lng: 77.5946,
+      accuracy: 25,
+      name: "Bengaluru, Central Hub",
+      address: "MG Road & Indiranagar, Bengaluru",
+      isManual: false,
+      source: "network",
+    };
+  }
+
+  return {
+    lat: 37.7749,
+    lng: -122.4194,
+    accuracy: 25,
+    name: "San Francisco, CA",
+    address: "Market St, San Francisco, CA",
+    isManual: false,
+    source: "network",
+  };
 };
+
+export const DEFAULT_FALLBACK_LOCATION: UserLocation = getInitialFallbackLocation();
 
 export interface UseLocationOptions {
   autoRequest?: boolean;

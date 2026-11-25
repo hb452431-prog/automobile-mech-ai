@@ -14,7 +14,10 @@ import {
   Clock, 
   Compass,
   Radio,
-  Sparkles
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +25,8 @@ import { MechMap, type MapGarageItem } from "@/components/map/MechMap";
 import { MechanicBikeDispatchLoader } from "@/components/garage/MechanicBikeDispatchLoader";
 import { LocationStatusBar } from "@/components/common/LocationStatusBar";
 import { LocationPermissionModal } from "@/components/common/LocationPermissionModal";
+import { RapidoTrackingModal, type ActiveRapidoBooking } from "@/components/garage/RapidoTrackingModal";
+import { triggerConfetti } from "@/lib/confetti";
 import { useLocation } from "@/hooks/useLocation";
 import { generateGaragesNearLocation, type DemoGarage } from "@/data/demoGarages";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +50,8 @@ function NearbyPage() {
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
   const [routing, setRouting] = useState(false);
   const [filterType, setFilterType] = useState<"all" | "closest" | "247">("all");
+  const [showRapidoModal, setShowRapidoModal] = useState(false);
+  const [activeRapidoBooking, setActiveRapidoBooking] = useState<ActiveRapidoBooking | null>(null);
 
   const {
     location: userLocation,
@@ -65,7 +72,8 @@ function NearbyPage() {
     if (userLocation && typeof userLocation.lat === "number" && typeof userLocation.lng === "number") {
       return { lat: userLocation.lat, lng: userLocation.lng };
     }
-    return { lat: 37.7749, lng: -122.4194 };
+    // Default reference: India Central Hub (Bengaluru) - never Americas
+    return { lat: 12.9716, lng: 77.5946 };
   }, [userLocation]);
 
   // Guest access allowed for exploring local map and live tracking
@@ -205,14 +213,75 @@ function NearbyPage() {
 
   // Whenever user's live GPS/IP location updates, automatically focus on the closest garage in their area!
   useEffect(() => {
-    if (allGarages.length > 0) {
+    if (allGarages.length > 0 && !activeRapidoBooking) {
       const closest = allGarages[0];
       if (!selectedGarage || (selectedGarage.distanceKm && selectedGarage.distanceKm > 50)) {
         setSelectedGarage(closest);
         drawDirections(closest);
       }
     }
-  }, [allGarages]);
+  }, [allGarages, activeRapidoBooking]);
+
+  // Live Rapido ETA Countdown Simulation
+  useEffect(() => {
+    if (!activeRapidoBooking || activeRapidoBooking.status === "completed") return;
+
+    const interval = setInterval(() => {
+      setActiveRapidoBooking((prev) => {
+        if (!prev) return null;
+        if (prev.status === "accepted") {
+          return { ...prev, status: "en_route", etaMinutes: 5 };
+        }
+        if (prev.status === "en_route") {
+          if (prev.etaMinutes <= 1) {
+            triggerConfetti({ particleCount: 90, spread: 80 });
+            toast.success(`Mechanic ${prev.mechanicName} has arrived at your vehicle!`);
+            return { ...prev, status: "arrived", etaMinutes: 0 };
+          }
+          return { ...prev, etaMinutes: prev.etaMinutes - 1 };
+        }
+        return prev;
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [activeRapidoBooking]);
+
+  const handleStartRapidoBooking = (booking: ActiveRapidoBooking) => {
+    setActiveRapidoBooking(booking);
+    setShowRapidoModal(false);
+    setSelectedGarage(booking.garage);
+    drawDirections(booking.garage);
+    toast.success(`Mechanic Dispatched! Ride PIN: ${booking.otp}`, {
+      description: `Technician ${booking.mechanicName} on Service Bike is heading to you.`,
+    });
+  };
+
+  const handleSimulateArrival = () => {
+    if (!activeRapidoBooking) return;
+    setActiveRapidoBooking((prev) => prev ? { ...prev, status: "arrived", etaMinutes: 0 } : null);
+    triggerConfetti({ particleCount: 100, spread: 90 });
+    toast.success(`Mechanic ${activeRapidoBooking.mechanicName} arrived at your location!`, {
+      description: `Verify OTP ${activeRapidoBooking.otp} with technician to start service.`,
+    });
+  };
+
+  const handleCancelRapidoBooking = () => {
+    setActiveRapidoBooking(null);
+    clearRoute();
+    setShowRapidoModal(false);
+    toast.info("Booking cancelled.");
+  };
+
+  const handleCompleteService = () => {
+    triggerConfetti({ particleCount: 120, spread: 100 });
+    toast.success("Service completed successfully!", {
+      description: `Payment of ₹${activeRapidoBooking?.totalFareInr} / $${activeRapidoBooking?.totalFareUsd} recorded.`,
+    });
+    setActiveRapidoBooking(null);
+    clearRoute();
+    setShowRapidoModal(false);
+  };
 
   const startNav = (garage: MapGarageItem) => {
     const origin = `${effectiveCenter.lat},${effectiveCenter.lng}`;
@@ -399,7 +468,16 @@ function NearbyPage() {
 
             {/* Actions Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
-              <Button asChild variant="outline" size="sm" className="h-10 text-xs font-semibold">
+              <Button
+                onClick={() => setShowRapidoModal(true)}
+                size="sm"
+                className="col-span-2 h-11 grad-primary text-primary-foreground font-black shadow-lg text-xs cursor-pointer"
+              >
+                <Zap className="mr-1.5 size-4 animate-pulse text-yellow-300" />
+                Book Mechanic Now (Rapido Dispatch)
+              </Button>
+
+              <Button asChild variant="outline" size="sm" className="h-11 text-xs font-semibold">
                 <a href={`tel:${selectedGarage.phone}`}>
                   <Phone className="mr-1.5 size-4 text-success" /> Call Workshop
                 </a>
@@ -410,29 +488,10 @@ function NearbyPage() {
                 disabled={routing}
                 variant="outline"
                 size="sm"
-                className="h-10 text-xs font-semibold"
+                className="h-11 text-xs font-semibold"
               >
                 {routing ? <Loader2 className="mr-1.5 size-4 animate-spin text-primary" /> : <RouteIcon className="mr-1.5 size-4 text-primary" />}
                 Route on Map
-              </Button>
-
-              <Button
-                onClick={() => startNav(selectedGarage)}
-                size="sm"
-                variant="secondary"
-                className="h-10 text-xs font-semibold"
-              >
-                <Navigation className="mr-1.5 size-4 text-primary" /> Turn-by-Turn
-              </Button>
-
-              <Button
-                asChild
-                size="sm"
-                className="h-10 grad-primary text-primary-foreground font-bold shadow-md text-xs"
-              >
-                <Link to={`/mechanics?selected=${selectedGarage.id}&book=true`}>
-                  <Calendar className="mr-1.5 size-4" /> Book Slot
-                </Link>
               </Button>
             </div>
           </div>
@@ -486,9 +545,24 @@ function NearbyPage() {
                     <span className="flex items-center gap-1 font-bold text-amber-500">
                       ★ {garage.rating || 4.9}
                     </span>
-                    <span className="text-[11px] font-semibold text-primary flex items-center gap-1">
-                      View on Map &rarr;
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedGarage(garage);
+                          drawDirections(garage);
+                          setShowRapidoModal(true);
+                        }}
+                        className="h-7 px-2.5 grad-primary text-primary-foreground font-extrabold text-[11px] rounded-lg shadow-sm"
+                      >
+                        ⚡ Book
+                      </Button>
+                      <span className="text-[11px] font-semibold text-primary flex items-center gap-1">
+                        View &rarr;
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -497,7 +571,76 @@ function NearbyPage() {
         )}
       </div>
 
-      {/* 6. Location Permission Modal */}
+      {/* 6. Live Rapido Driver Floating HUD Card (when booking active) */}
+      {activeRapidoBooking && (
+        <div className="absolute left-3 right-3 bottom-24 sm:left-auto sm:right-6 sm:bottom-28 z-30 max-w-md w-auto rounded-3xl border border-primary/40 bg-card/95 p-4 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom duration-300 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="size-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl shadow-inner">
+                🏍️
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h4 className="font-extrabold text-sm text-foreground">{activeRapidoBooking.mechanicName}</h4>
+                  <Badge variant="outline" className="border-success/40 bg-success/15 text-success text-[10px] font-bold">
+                    {activeRapidoBooking.status === "arrived" ? "ARRIVED" : "ON THE WAY"}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {activeRapidoBooking.technicianVehicle} · <strong className="text-primary font-mono">{activeRapidoBooking.technicianPlate}</strong>
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] uppercase font-bold text-muted-foreground block">Safety PIN</span>
+              <span className="text-lg font-mono font-black text-amber-500 tracking-wider">{activeRapidoBooking.otp}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
+            <div className="flex items-center gap-1.5 font-bold text-foreground">
+              <Clock className="size-4 text-primary animate-pulse" />
+              <span>{activeRapidoBooking.status === "arrived" ? "Mechanic At Your Location" : `Arriving in ~${activeRapidoBooking.etaMinutes} mins`}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowRapidoModal(true)}
+                className="h-8 text-[11px] font-bold px-2.5"
+              >
+                Tracking
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="h-8 text-[11px] font-bold grad-primary text-primary-foreground px-2.5"
+              >
+                <a href={`tel:${activeRapidoBooking.garage.phone || "+919876543210"}`}>
+                  <Phone className="size-3.5 mr-1" /> Call
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. Rapido Booking & Live Tracking Modal */}
+      {showRapidoModal && (
+        <RapidoTrackingModal
+          isOpen={showRapidoModal}
+          onClose={() => setShowRapidoModal(false)}
+          garage={selectedGarage}
+          userLocation={effectiveCenter}
+          onStartBooking={handleStartRapidoBooking}
+          activeBooking={activeRapidoBooking}
+          onCancelBooking={handleCancelRapidoBooking}
+          onSimulateArrival={handleSimulateArrival}
+          onCompleteService={handleCompleteService}
+        />
+      )}
+
+      {/* 8. Location Permission Modal */}
       {showPermissionModal && (
         <LocationPermissionModal
           isOpen={showPermissionModal}

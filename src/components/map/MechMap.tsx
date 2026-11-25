@@ -66,7 +66,7 @@ export function MechMap({
   isLocating: externalIsLocating,
   locationError: externalLocationError,
   height = "460px",
-  initialCenter = [37.7749, -122.4194],
+  initialCenter = [12.9716, 77.5946],
   initialZoom = 13,
   className = "",
 }: MechMapProps) {
@@ -75,7 +75,7 @@ export function MechMap({
   const markersLayerRef = useRef<any>(null);
   const routeLayerRef = useRef<any>(null);
   const movingVehicleMarkerRef = useRef<any>(null);
-  const hasAutoCenteredRef = useRef(false);
+  const lastCenteredPosRef = useRef<{ lat: number; lng: number } | null>(null);
   const [leafletLoaded, setLeafletLoaded] = useState(false);
   const [routeStepIndex, setRouteStepIndex] = useState(0);
 
@@ -384,15 +384,19 @@ export function MechMap({
       try {
         map.fitBounds(routeCoordinates, { padding: [50, 50], maxZoom: 16, animate: true });
       } catch {}
-    } else if (selectedGarage) {
+    } else if (selectedGarage && !showRoute) {
       map.flyTo([selectedGarage.lat, selectedGarage.lng], 15, { duration: 1.2 });
-    } else if (userLocation && !hasAutoCenteredRef.current) {
-      hasAutoCenteredRef.current = true;
-      map.flyTo([userLocation.lat, userLocation.lng], 15, { duration: 1.2 });
+    } else if (userLocation) {
+      const last = lastCenteredPosRef.current;
+      const isNew = !last || Math.abs(last.lat - userLocation.lat) > 0.001 || Math.abs(last.lng - userLocation.lng) > 0.001;
+      if (isNew && !selectedGarage && !showRoute) {
+        lastCenteredPosRef.current = { lat: userLocation.lat, lng: userLocation.lng };
+        map.flyTo([userLocation.lat, userLocation.lng], 15, { duration: 1.2 });
+      }
     }
   }, [leafletLoaded, userLocation, garages, selectedGarage, mechanicLocation, mechanicInfo, routeCoordinates, showRoute, activeRouteInfo]);
 
-  // Live vehicle position tracking animation along routeCoordinates
+  // Live vehicle position tracking animation along routeCoordinates (Rapido Bike / Mobile Unit)
   useEffect(() => {
     if (!showRoute || !routeCoordinates || routeCoordinates.length < 2 || !window.L || !routeLayerRef.current) {
       if (movingVehicleMarkerRef.current && routeLayerRef.current) {
@@ -411,17 +415,17 @@ export function MechMap({
     const vehicleIcon = L.divIcon({
       className: "custom-tracking-vehicle",
       html: `
-        <div style="position:relative; width:36px; height:36px; display:flex; align-items:center; justify-content:center; animation:vehicleTrackingPulse 1.8s infinite;">
-          <div style="width:32px; height:32px; border-radius:50%; background:#ea580c; border:2px solid #ffffff; box-shadow:0 0 14px rgba(234,88,12,0.95); display:flex; align-items:center; justify-content:center; font-size:15px; color:#ffffff;">
-            🚐
+        <div style="position:relative; width:40px; height:40px; display:flex; align-items:center; justify-content:center; animation:vehicleTrackingPulse 1.8s infinite;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#f97316; border:2.5px solid #ffffff; box-shadow:0 0 16px rgba(249,115,22,0.95); display:flex; align-items:center; justify-content:center; font-size:18px; color:#ffffff;">
+            🏍️
           </div>
-          <span style="position:absolute; top:-14px; background:#ea580c; color:#ffffff; font-size:8px; font-weight:900; font-family:monospace; padding:1px 5px; border-radius:999px; border:1px solid #ffffff; white-space:nowrap;">
-            LIVE TRACKING
+          <span style="position:absolute; top:-16px; background:#ea580c; color:#ffffff; font-size:9px; font-weight:900; font-family:monospace; padding:1px 6px; border-radius:999px; border:1px solid #ffffff; box-shadow:0 2px 6px rgba(0,0,0,0.4); white-space:nowrap;">
+            RAPIDO DISPATCH
           </span>
         </div>
       `,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
     });
 
     const marker = L.marker(pts[0], { icon: vehicleIcon, zIndexOffset: 3000 });
@@ -431,7 +435,7 @@ export function MechMap({
     const interval = setInterval(() => {
       step = (step + 1) % pts.length;
       marker.setLatLng(pts[step]);
-    }, 1200);
+    }, 1000);
 
     return () => {
       clearInterval(interval);

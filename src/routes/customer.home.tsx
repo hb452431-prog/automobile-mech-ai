@@ -17,6 +17,7 @@ import { generateGaragesNearLocation } from "@/data/demoGarages";
 import { diagnose, type DiagnosisResult } from "@/lib/ai-diagnose.functions";
 import { LANGUAGES } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
+import { MechMap, type MapGarageItem } from "@/components/map/MechMap";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Mech = Tables<"mechanics">;
@@ -131,7 +132,7 @@ function CustomerHome() {
             ))}
           </div>
           <div className="lg:sticky lg:top-6 lg:self-start">
-            <GoogleMap center={pos} mechs={results.map(r => r.m)} selectedId={selectedId} onSelect={setSelectedId} />
+            <OpenStreetMapPreview center={pos} mechs={results.map(r => r.m)} selectedId={selectedId} onSelect={setSelectedId} />
           </div>
         </div>
 
@@ -171,60 +172,50 @@ function MechCard({ m, dist, selected, onSelect, customerPos }: { m: Mech; dist:
   );
 }
 
-declare global { interface Window { google?: any; initGmap?: () => void; } }
+function OpenStreetMapPreview({ 
+  center, 
+  mechs, 
+  selectedId, 
+  onSelect 
+}: { 
+  center: { lat: number; lng: number }; 
+  mechs: Mech[]; 
+  selectedId: string | null; 
+  onSelect: (id: string) => void 
+}) {
+  const mapGarages: MapGarageItem[] = mechs.map((m) => ({
+    id: m.id,
+    name: m.garage_name,
+    mechanicName: m.full_name,
+    address: `${m.address}, ${m.city}`,
+    phone: m.phone,
+    services: m.services ?? ["General Automotive"],
+    rating: 4.9,
+    lat: m.latitude || center.lat,
+    lng: m.longitude || center.lng,
+    available: m.availability_status === "open",
+    isOpen247: m.working_hours?.includes("24/7"),
+  }));
 
-function GoogleMap({ center, mechs, selectedId, onSelect }: { center: { lat: number; lng: number }; mechs: Mech[]; selectedId: string | null; onSelect: (id: string) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const markersRef = useRef<Record<string, any>>({});
-  const [ready, setReady] = useState(false);
+  const selectedGarage = mapGarages.find((g) => g.id === selectedId) || null;
 
-  useEffect(() => {
-    if (window.google?.maps) { setReady(true); return; }
-    const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY;
-    const trackId = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID;
-    if (!key) return;
-    window.initGmap = () => setReady(true);
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&loading=async&callback=initGmap${trackId ? `&channel=${trackId}` : ""}`;
-    s.async = true;
-    document.head.appendChild(s);
-  }, []);
-
-  useEffect(() => {
-    if (!ready || !ref.current) return;
-    if (!mapRef.current) {
-      mapRef.current = new window.google.maps.Map(ref.current, {
-        center, zoom: 12, disableDefaultUI: false,
-        styles: [{ elementType: "geometry", stylers: [{ color: "#1a2332" }] }, { elementType: "labels.text.fill", stylers: [{ color: "#d1d5db" }] }, { elementType: "labels.text.stroke", stylers: [{ color: "#0f172a" }] }, { featureType: "road", elementType: "geometry", stylers: [{ color: "#334155" }] }, { featureType: "water", elementType: "geometry", stylers: [{ color: "#0b1220" }] }],
-      });
-      new window.google.maps.Marker({ position: center, map: mapRef.current, title: "You", icon: { path: window.google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#f97316", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2 } });
-    } else {
-      mapRef.current.setCenter(center);
-    }
-    Object.values(markersRef.current).forEach((m: any) => m.setMap(null));
-    markersRef.current = {};
-    mechs.forEach((m) => {
-      if (m.latitude == null || m.longitude == null) return;
-      const marker = new window.google.maps.Marker({
-        position: { lat: m.latitude, lng: m.longitude }, map: mapRef.current, title: m.garage_name,
-      });
-      marker.addListener("click", () => onSelect(m.id));
-      markersRef.current[m.id] = marker;
-    });
-  }, [ready, center, mechs, onSelect]);
-
-  useEffect(() => {
-    if (selectedId && markersRef.current[selectedId] && mapRef.current) {
-      const m = markersRef.current[selectedId];
-      mapRef.current.panTo(m.getPosition());
-    }
-  }, [selectedId]);
-
-  if (!import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) {
-    return <Card className="grid h-96 place-items-center text-sm text-muted-foreground">Google Maps key not configured</Card>;
-  }
-  return <div ref={ref} className="h-[500px] w-full rounded-xl border border-border/60 bg-muted" />;
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl">
+      <div className="flex items-center justify-between border-b border-border/40 bg-muted/40 px-4 py-2.5 text-xs">
+        <span className="font-bold flex items-center gap-1.5 text-foreground">
+          <MapPin className="size-3.5 text-primary" /> Live GPS Workshop Radar
+        </span>
+        <span className="text-[11px] text-muted-foreground">{mapGarages.length} nearby hubs</span>
+      </div>
+      <MechMap
+        userLocation={center}
+        garages={mapGarages}
+        selectedGarage={selectedGarage}
+        onSelectGarage={(g) => onSelect(g.id)}
+        height="480px"
+      />
+    </div>
+  );
 }
 
 function AiSection({ onGoToMechanic, userId }: { onGoToMechanic: () => void; userId?: string }) {
