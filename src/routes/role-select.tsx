@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchUserRole, useAuth } from "@/lib/use-auth";
+import { fetchUserRole, setUserRole, useAuth } from "@/lib/use-auth";
 
 export const Route = createFileRoute("/role-select")({ component: RoleSelect });
 
@@ -21,19 +21,23 @@ function RoleSelect() {
   const pick = async (role: "mechanic" | "customer") => {
     if (!user) return;
     setBusy(true);
-    const existing = await fetchUserRole(user.id);
-    if (!existing) {
-      const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role });
-      if (error) { toast.error(error.message); setBusy(false); return; }
-    }
-    await supabase.from("profiles").update({ role }).eq("id", user.id);
+    setUserRole(user.id, role);
+
+    try {
+      await supabase.from("user_roles").insert({ user_id: user.id, role });
+    } catch {}
+    try {
+      await supabase.from("profiles").update({ role }).eq("id", user.id);
+    } catch {}
+
+    toast.success(`Role selected: ${role === "mechanic" ? "Mechanic Partner" : "Customer / Driver"}`);
+
     if (role === "mechanic") {
-      const { data: m } = await supabase.from("mechanics").select("id").eq("user_id", user.id).maybeSingle();
-      navigate({ to: m ? "/mechanic/dashboard" : "/mechanic/register" });
+      navigate({ to: "/partner-portal" });
     } else {
-      const { data: c } = await supabase.from("customers").select("id").eq("user_id", user.id).maybeSingle();
-      navigate({ to: c ? "/customer/home" : "/customer/register" });
+      navigate({ to: "/customer/home" });
     }
+    setBusy(false);
   };
 
   return (

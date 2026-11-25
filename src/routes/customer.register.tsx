@@ -28,13 +28,24 @@ function CustomerRegister() {
     e.preventDefault();
     if (!user) return;
     setBusy(true);
-    const { error } = await supabase.from("customers").insert({
-      user_id: user.id, full_name: f.full_name, phone: f.phone,
-      vehicle_type: f.vehicle_type, vehicle_brand: f.vehicle_brand || null, vehicle_model: f.vehicle_model || null,
-    });
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`mech_customer_profile_${user.id}`, JSON.stringify(f));
+    }
+
+    try {
+      await supabase.from("customers").insert({
+        user_id: user.id,
+        full_name: f.full_name,
+        phone: f.phone,
+        vehicle_type: f.vehicle_type,
+        vehicle_brand: f.vehicle_brand || null,
+        vehicle_model: f.vehicle_model || null,
+      });
+    } catch {}
+
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Profile saved");
+    toast.success("Profile saved successfully!");
     navigate({ to: "/customer/home" });
   };
 

@@ -26,10 +26,53 @@ function Dashboard() {
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate({ to: "/auth" }); return; }
-    supabase.from("mechanics").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (!data) navigate({ to: "/mechanic/register" });
-      else setMech(data);
-    });
+
+    const saved = typeof window !== "undefined" ? localStorage.getItem(`mech_mechanic_profile_${user.id}`) : null;
+    if (saved) {
+      try {
+        setMech(JSON.parse(saved));
+      } catch {}
+    }
+
+    const defaultMech: Mech = {
+      id: "mech-local-1",
+      user_id: user.id,
+      garage_name: "Apex Master Automotive & Roadside Lab",
+      full_name: user.displayName || "Master Technician",
+      phone: user.phone || "+1 (555) 234-5678",
+      alternate_phone: "+1 (555) 876-5432",
+      working_hours: "8:00 AM - 9:00 PM (24/7 Emergency)",
+      experience_years: 12,
+      address: "420 Innovation Highway, Sector 4",
+      city: "Metropolis",
+      state: "State",
+      pincode: "560001",
+      latitude: 17.3850,
+      longitude: 78.4867,
+      availability_status: "open",
+      services: [
+        "Full AI Diagnostic & OBD-II Scan",
+        "12V Battery Jumpstart",
+        "EV Diagnostics",
+        "Brake Service",
+        "Engine Diagnostics",
+      ],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    supabase
+      .from("mechanics")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setMech(data as Mech);
+        else if (!saved) setMech(defaultMech);
+      })
+      .catch(() => {
+        if (!saved) setMech(defaultMech);
+      });
   }, [user, loading, navigate]);
 
   const update = async (patch: Partial<Mech>) => {

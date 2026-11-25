@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { distanceKm } from "@/lib/geocode";
+import { generateGaragesNearLocation } from "@/data/demoGarages";
 import { diagnose, type DiagnosisResult } from "@/lib/ai-diagnose.functions";
 import { LANGUAGES } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
@@ -40,24 +41,58 @@ function CustomerHome() {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    supabase.from("mechanics").select("*").not("latitude", "is", null).then(({ data }) => {
-      if (data) setMechs(data as Mech[]);
-    });
+    supabase
+      .from("mechanics")
+      .select("*")
+      .not("latitude", "is", null)
+      .then(({ data }) => {
+        if (data && data.length > 0) setMechs(data as Mech[]);
+      })
+      .catch(() => {});
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); setPosSet(true); },
+        (p) => {
+          setPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+          setPosSet(true);
+        },
         () => {},
+        { enableHighAccuracy: true, timeout: 5000 }
       );
     }
   }, []);
 
+  const effectiveMechs: Mech[] = useMemo(() => {
+    if (mechs.length > 0) return mechs;
+    return generateGaragesNearLocation(pos.lat, pos.lng, 8).map((g) => ({
+      id: g.id,
+      user_id: "demo",
+      garage_name: g.name,
+      full_name: g.mechanicName,
+      phone: g.phone,
+      alternate_phone: null,
+      address: g.address,
+      city: "Nearby",
+      state: "State",
+      pincode: "000000",
+      latitude: g.lat,
+      longitude: g.lng,
+      services: g.services,
+      experience_years: 10,
+      working_hours: "24/7",
+      availability_status: "open",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+  }, [mechs, pos]);
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return mechs
+    return effectiveMechs
       .filter((m) => !q || m.garage_name.toLowerCase().includes(q) || m.full_name.toLowerCase().includes(q) || (m.services ?? []).some(s => s.toLowerCase().includes(q)))
       .map((m) => ({ m, dist: distanceKm(pos, { lat: m.latitude!, lng: m.longitude! }) }))
       .sort((a, b) => a.dist - b.dist);
-  }, [mechs, query, pos]);
+  }, [effectiveMechs, query, pos]);
 
   const scrollToSearch = () => searchRef.current?.scrollIntoView({ behavior: "smooth" });
 

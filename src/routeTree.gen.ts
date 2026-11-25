@@ -9,8 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SosRouteImport } from './routes/sos'
 import { Route as RoleSelectRouteImport } from './routes/role-select'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PartnerPortalRouteImport } from './routes/partner-portal'
+import { Route as MechanicsRouteImport } from './routes/mechanics'
+import { Route as DiagnoseRouteImport } from './routes/diagnose'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CostEstimatorRouteImport } from './routes/cost-estimator'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MechanicRegisterRouteImport } from './routes/mechanic.register'
@@ -19,6 +25,11 @@ import { Route as CustomerRegisterRouteImport } from './routes/customer.register
 import { Route as CustomerNearbyRouteImport } from './routes/customer.nearby'
 import { Route as CustomerHomeRouteImport } from './routes/customer.home'
 
+const SosRoute = SosRouteImport.update({
+  id: '/sos',
+  path: '/sos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RoleSelectRoute = RoleSelectRouteImport.update({
   id: '/role-select',
   path: '/role-select',
@@ -27,6 +38,31 @@ const RoleSelectRoute = RoleSelectRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerPortalRoute = PartnerPortalRouteImport.update({
+  id: '/partner-portal',
+  path: '/partner-portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MechanicsRoute = MechanicsRouteImport.update({
+  id: '/mechanics',
+  path: '/mechanics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnoseRoute = DiagnoseRouteImport.update({
+  id: '/diagnose',
+  path: '/diagnose',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CostEstimatorRoute = CostEstimatorRouteImport.update({
+  id: '/cost-estimator',
+  path: '/cost-estimator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -68,8 +104,14 @@ const CustomerHomeRoute = CustomerHomeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cost-estimator': typeof CostEstimatorRoute
+  '/dashboard': typeof DashboardRoute
+  '/diagnose': typeof DiagnoseRoute
+  '/mechanics': typeof MechanicsRoute
+  '/partner-portal': typeof PartnerPortalRoute
   '/profile': typeof ProfileRoute
   '/role-select': typeof RoleSelectRoute
+  '/sos': typeof SosRoute
   '/customer/home': typeof CustomerHomeRoute
   '/customer/nearby': typeof CustomerNearbyRoute
   '/customer/register': typeof CustomerRegisterRoute
@@ -79,8 +121,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cost-estimator': typeof CostEstimatorRoute
+  '/dashboard': typeof DashboardRoute
+  '/diagnose': typeof DiagnoseRoute
+  '/mechanics': typeof MechanicsRoute
+  '/partner-portal': typeof PartnerPortalRoute
   '/profile': typeof ProfileRoute
   '/role-select': typeof RoleSelectRoute
+  '/sos': typeof SosRoute
   '/customer/home': typeof CustomerHomeRoute
   '/customer/nearby': typeof CustomerNearbyRoute
   '/customer/register': typeof CustomerRegisterRoute
@@ -91,8 +139,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cost-estimator': typeof CostEstimatorRoute
+  '/dashboard': typeof DashboardRoute
+  '/diagnose': typeof DiagnoseRoute
+  '/mechanics': typeof MechanicsRoute
+  '/partner-portal': typeof PartnerPortalRoute
   '/profile': typeof ProfileRoute
   '/role-select': typeof RoleSelectRoute
+  '/sos': typeof SosRoute
   '/customer/home': typeof CustomerHomeRoute
   '/customer/nearby': typeof CustomerNearbyRoute
   '/customer/register': typeof CustomerRegisterRoute
@@ -104,8 +158,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cost-estimator'
+    | '/dashboard'
+    | '/diagnose'
+    | '/mechanics'
+    | '/partner-portal'
     | '/profile'
     | '/role-select'
+    | '/sos'
     | '/customer/home'
     | '/customer/nearby'
     | '/customer/register'
@@ -115,8 +175,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cost-estimator'
+    | '/dashboard'
+    | '/diagnose'
+    | '/mechanics'
+    | '/partner-portal'
     | '/profile'
     | '/role-select'
+    | '/sos'
     | '/customer/home'
     | '/customer/nearby'
     | '/customer/register'
@@ -126,8 +192,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/cost-estimator'
+    | '/dashboard'
+    | '/diagnose'
+    | '/mechanics'
+    | '/partner-portal'
     | '/profile'
     | '/role-select'
+    | '/sos'
     | '/customer/home'
     | '/customer/nearby'
     | '/customer/register'
@@ -138,8 +210,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CostEstimatorRoute: typeof CostEstimatorRoute
+  DashboardRoute: typeof DashboardRoute
+  DiagnoseRoute: typeof DiagnoseRoute
+  MechanicsRoute: typeof MechanicsRoute
+  PartnerPortalRoute: typeof PartnerPortalRoute
   ProfileRoute: typeof ProfileRoute
   RoleSelectRoute: typeof RoleSelectRoute
+  SosRoute: typeof SosRoute
   CustomerHomeRoute: typeof CustomerHomeRoute
   CustomerNearbyRoute: typeof CustomerNearbyRoute
   CustomerRegisterRoute: typeof CustomerRegisterRoute
@@ -149,6 +227,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sos': {
+      id: '/sos'
+      path: '/sos'
+      fullPath: '/sos'
+      preLoaderRoute: typeof SosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/role-select': {
       id: '/role-select'
       path: '/role-select'
@@ -161,6 +246,41 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner-portal': {
+      id: '/partner-portal'
+      path: '/partner-portal'
+      fullPath: '/partner-portal'
+      preLoaderRoute: typeof PartnerPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mechanics': {
+      id: '/mechanics'
+      path: '/mechanics'
+      fullPath: '/mechanics'
+      preLoaderRoute: typeof MechanicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnose': {
+      id: '/diagnose'
+      path: '/diagnose'
+      fullPath: '/diagnose'
+      preLoaderRoute: typeof DiagnoseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cost-estimator': {
+      id: '/cost-estimator'
+      path: '/cost-estimator'
+      fullPath: '/cost-estimator'
+      preLoaderRoute: typeof CostEstimatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -218,8 +338,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CostEstimatorRoute: CostEstimatorRoute,
+  DashboardRoute: DashboardRoute,
+  DiagnoseRoute: DiagnoseRoute,
+  MechanicsRoute: MechanicsRoute,
+  PartnerPortalRoute: PartnerPortalRoute,
   ProfileRoute: ProfileRoute,
   RoleSelectRoute: RoleSelectRoute,
+  SosRoute: SosRoute,
   CustomerHomeRoute: CustomerHomeRoute,
   CustomerNearbyRoute: CustomerNearbyRoute,
   CustomerRegisterRoute: CustomerRegisterRoute,
@@ -229,3 +355,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

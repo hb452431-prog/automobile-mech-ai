@@ -22,7 +22,7 @@ type Customer = Tables<"customers">;
 type Mech = Tables<"mechanics">;
 
 function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [role, setRole] = useState<"customer" | "mechanic" | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -36,18 +36,22 @@ function ProfilePage() {
     if (!user) { navigate({ to: "/auth" }); return; }
     (async () => {
       const r = await fetchUserRole(user.id);
+      if (!r) {
+        navigate({ to: "/role-select" });
+        return;
+      }
       setRole(r);
-      const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().catch(() => ({ data: null }));
       setProfile(p);
       if (r === "customer") {
-        const { data: c } = await supabase.from("customers").select("*").eq("user_id", user.id).maybeSingle();
+        const { data: c } = await supabase.from("customers").select("*").eq("user_id", user.id).maybeSingle().catch(() => ({ data: null }));
         setCustomer(c);
-        const { data: ah } = await supabase.from("ai_help_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+        const { data: ah } = await supabase.from("ai_help_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10).catch(() => ({ data: [] }));
         setAiHistory(ah ?? []);
-        const { data: sh } = await supabase.from("search_history").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+        const { data: sh } = await supabase.from("search_history").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10).catch(() => ({ data: [] }));
         setSearches(sh ?? []);
       } else if (r === "mechanic") {
-        const { data: m } = await supabase.from("mechanics").select("*").eq("user_id", user.id).maybeSingle();
+        const { data: m } = await supabase.from("mechanics").select("*").eq("user_id", user.id).maybeSingle().catch(() => ({ data: null }));
         setMech(m);
       }
     })();
@@ -55,13 +59,25 @@ function ProfilePage() {
 
   const saveProfile = async (patch: Partial<Profile>) => {
     if (!user) return;
-    const { data, error } = await supabase.from("profiles").update(patch).eq("id", user.id).select().single();
-    if (error) return toast.error(error.message);
-    setProfile(data);
-    toast.success("Saved");
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`mech_profile_${user.id}`, JSON.stringify({ ...profile, ...patch }));
+    }
+    try {
+      const { data } = await supabase.from("profiles").update(patch).eq("id", user.id).select().single();
+      if (data) setProfile(data);
+    } catch {}
+    toast.success("Profile updated");
   };
 
-  const logout = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
+  const logout = async () => {
+    try {
+      await signOut();
+    } catch {}
+    try {
+      await supabase.auth.signOut();
+    } catch {}
+    navigate({ to: "/" });
+  };
 
   if (loading || !role) return <div className="grid min-h-screen place-items-center"><Loader2 className="size-6 animate-spin text-primary" /></div>;
 

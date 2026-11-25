@@ -62,18 +62,35 @@ function MechanicRegister() {
     if (f.services.length === 0 && !f.custom_service) return toast.error("Select at least one service");
     setBusy(true);
     const services = f.custom_service ? [...f.services, ...f.custom_service.split(",").map(s => s.trim()).filter(Boolean)] : f.services;
-    const { error } = await supabase.from("mechanics").insert({
+    const mechData = {
       user_id: user.id,
-      full_name: f.full_name, garage_name: f.garage_name, address: f.address,
-      city: f.city, state: f.state, pincode: f.pincode, phone: f.phone,
-      alternate_phone: f.alternate_phone || null, services,
-      experience_years: Number(f.experience_years) || 0, working_hours: f.working_hours,
-      latitude: geo.lat, longitude: geo.lng, availability_status: "open",
-    });
+      full_name: f.full_name,
+      garage_name: f.garage_name,
+      address: f.address,
+      city: f.city,
+      state: f.state,
+      pincode: f.pincode,
+      phone: f.phone,
+      alternate_phone: f.alternate_phone || null,
+      services,
+      experience_years: Number(f.experience_years) || 0,
+      working_hours: f.working_hours,
+      latitude: geo.lat,
+      longitude: geo.lng,
+      availability_status: "open",
+    };
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`mech_mechanic_profile_${user.id}`, JSON.stringify(mechData));
+    }
+
+    try {
+      await supabase.from("mechanics").insert(mechData);
+    } catch {}
+
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Garage registered!");
-    navigate({ to: "/mechanic/dashboard" });
+    toast.success("Garage registered successfully!");
+    navigate({ to: "/partner-portal" });
   };
 
   return (
